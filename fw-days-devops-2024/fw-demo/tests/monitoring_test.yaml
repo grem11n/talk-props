@@ -1,0 +1,28 @@
+---
+suite: fw-demo
+tests:
+  - it: Monitoring disabled
+    template: monitoring.yaml
+    values:
+      - ./minimal.values.yaml
+    set:
+      monitoring:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: Monitoring enabled
+    template: monitoring.yaml
+    values:
+      - ./minimal.values.yaml
+    set:
+      monitoring:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          kind: DatadogMonitor
+          apiVersion: datadoghq.com/v1alpha1
+          namespace: datadog

@@ -1,0 +1,6 @@
+---
+apiVersion: v2
+name: monitoring
+description: An example of adding some DataDog alerts within a chart
+type: library
+version: 0.0.1
