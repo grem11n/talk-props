@@ -1,0 +1,70 @@
+suite: fw-demo
+templates:
+  - templates/deployment.yaml
+  - templates/hpa.yaml
+tests:
+  - it: Autoscaling disabled (deploy)
+    template: deployment.yaml
+    values:
+      - ./minimal.values.yaml
+    set:
+      autoscaling:
+        enabled: false
+      replicas: 2
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          kind: Deployment
+          apiVersion: apps/v1
+      - equal:
+          path: spec.replicas
+          value: 2
+  - it: Autoscaling disabled (hpa)
+    template: hpa.yaml
+    values:
+      - ./minimal.values.yaml
+    set:
+      autoscaling:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: Autoscaling enabled (deploy)
+    template: deployment.yaml
+    values:
+      - ./minimal.values.yaml
+    set:
+      autoscaling:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          kind: Deployment
+          apiVersion: apps/v1
+      - notExists:
+          path: spec.replicas
+
+  - it: Autoscaling enabled (hpa)
+    template: hpa.yaml
+    values:
+      - ./minimal.values.yaml
+    set:
+      autoscaling:
+        enabled: true
+        minReplicas: 2
+        maxReplicas: 5
+    asserts:
+      - hasDocuments:
+          count: 1
+      - containsDocument:
+          kind: HorizontalPodAutoscaler
+          apiVersion: autoscaling/v2
+      - equal:
+          path: spec.minReplicas
+          value: 2
+      - equal:
+          path: spec.maxReplicas
+          value: 5
